@@ -7,6 +7,11 @@ const sayYoMiddleware = ({ reply }, next) => reply('yo').then(next)
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
+bot.command('start', ({ from, reply }) => {
+    console.log('start', from)
+    return reply('Welcome!')
+})
+
 bot.command('report', sayYoMiddleware, (ctx) => {
     console.log(ctx.message)
 return ctx.reply('[coffee group](https://t.me/joinchat/AAAAAA3gb6WaatzHJzYFEw)', Extra.markdown())
