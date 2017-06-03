@@ -4,7 +4,6 @@ const Telegraf = require('telegraf')
 const TelegrafFlow = require('telegraf-flow')
 const db = require('./db').init()
 
-process.env.BOT_TOKEN = '394673162:AAG8cSJKrz9s93u6jDH-_l4R9O28ON-16i0'
 const {Extra} = Telegraf
 
 const {WizardScene} = TelegrafFlow
