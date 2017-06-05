@@ -10,6 +10,7 @@
   "author": "Gemeng",
   "license": "ISC",
   "dependencies": {
+    "firebase": "^4.1.1",
     "sqlite3": "^3.1.8",
     "telegraf": "^3.7.3",
     "telegraf-flow": "^8.1.2"

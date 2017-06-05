@@ -2,14 +2,14 @@
 
 const Telegraf = require('telegraf')
 const TelegrafFlow = require('telegraf-flow')
-const db = require('./db').init()
+const db = require('./db')
 
 const {Extra} = Telegraf
 
 const {WizardScene} = TelegrafFlow
 const flow = new TelegrafFlow()
 
-flow.command('report_new_group', context => context.flow.enter('addGroup'))
+flow.command('add_group', context => context.flow.enter('addGroup'))
 
 let name, link
 const addGroupScene = new WizardScene('addGroup',
@@ -25,9 +25,7 @@ const addGroupScene = new WizardScene('addGroup',
     context => {
         link = context.message.text
         context.reply(`Done, inserting ${name}, ${link}`)
-        const stmt = db.prepare("INSERT INTO groups VALUES (?, ?)");
-        stmt.run(name, link);
-        stmt.finalize();
+        db.write(name, link)
         context.flow.leave()
     })
 
@@ -42,14 +40,9 @@ bot.command('start', ({from, reply}) => {
     return reply('Welcome!')
 })
 
-bot.command('voila', (context) => {
-    db.all('SELECT * FROM groups', function (err, rows) {
-        if (err) {
-            console.error(err)
-            return
-        }
-
-        const groups = rows.map(row => `- [${row.name}](${row.link})`)
+bot.command('list_groups', (context) => {
+    db.read().then(function (groupsMapping) {
+        const groups = Object.entries(groupsMapping).map(([name, link]) => `- [${name}](${link})`)
         return context.reply(groups.join('\n'), Extra.markdown())
     })
 })
