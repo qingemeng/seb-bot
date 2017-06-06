@@ -11,17 +11,31 @@ const config = {
     messagingSenderId: "772903708437"
 };
 
-
 firebase.initializeApp(config);
 const db = firebase.database();
 
-const read = () => db.ref('/groups/').once('value').then(snapshot => snapshot.val())
+const read = (path) => db.ref(`/${path}`).once('value').then(snapshot => snapshot.val())
 
-const write = (name, link) => {
-    db.ref(`/groups/${name}`).set(link);
+const write = (path, key, value) => {
+    db.ref(`/${path}${key}`).set(value);
+}
+
+const auth = (context) => {
+    return firebase.auth().signInAnonymously()
+        .then(() => read('password/')
+            .then((password) => {
+                    const passed = password === context.message.text
+                    if(passed){
+                        write('chats/', context.message.chat.id, context.message.chat.username)
+                    }
+                    return passed
+                }
+            )
+        )
 }
 
 module.exports = {
     read,
-    write
+    write,
+    auth
 }

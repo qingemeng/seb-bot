@@ -24,24 +24,39 @@ const addGroupScene = new WizardScene('addGroup',
     },
     context => {
         link = context.message.text
-        context.reply(`Done, inserting ${name}, ${link}`)
-        db.write(name, link)
+        context.reply(`Done, adding ${name}, ${link}`)
+        db.write('groups/', name, link)
         context.flow.leave()
     })
 
 flow.register(addGroupScene)
 
+flow.command('start', context => {
+    context.flow.enter('authenticate')
+    console.log('start...')
+})
+const authenticateScene = new WizardScene('authenticate',
+    context => {
+        context.reply("What's the magic words?")
+        context.flow.wizard.next()
+    },
+    context => {
+        db.auth(context)
+            .then((passed) => {
+                return context.reply(passed ? 'Welcome' : 'Wrong password')
+            })
+        console.log(Telegraf.memorySession())
+        context.flow.leave()
+    })
+
+flow.register(authenticateScene)
+
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(Telegraf.memorySession())
 bot.on('text', flow.middleware())
 
-bot.command('start', ({from, reply}) => {
-    console.log('start', from)
-    return reply('Welcome!')
-})
-
 bot.command('list_groups', (context) => {
-    db.read().then(function (groupsMapping) {
+    db.read('groups/').then(function (groupsMapping) {
         const groups = Object.entries(groupsMapping).map(([name, link]) => `- [${name}](${link})`)
         return context.reply(groups.join('\n'), Extra.markdown())
     })
