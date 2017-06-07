@@ -25,7 +25,7 @@ const auth = (context) => {
         .then(() => read('password/')
             .then((password) => {
                     const passed = password === context.message.text
-                    if(passed){
+                    if (passed) {
                         write('chats/', context.message.chat.id, context.message.chat.username)
                     }
                     return passed
@@ -34,8 +34,18 @@ const auth = (context) => {
         )
 }
 
+const doorCheck = (context) => {
+    return firebase.auth().signInAnonymously()
+        .then(() => read('chats/')
+            .then((chatsMapping) => {
+                console.log(chatsMapping[context.message.chat.id])
+                return chatsMapping[context.message.chat.id]
+            }))
+}
+
 module.exports = {
     read,
     write,
-    auth
+    auth,
+    doorCheck
 }

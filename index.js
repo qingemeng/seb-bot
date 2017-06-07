@@ -14,12 +14,18 @@ flow.command('add_group', context => context.flow.enter('addGroup'))
 let name, link
 const addGroupScene = new WizardScene('addGroup',
     context => {
-        context.reply("What's the group name?")
-        context.flow.wizard.next()
+        db.doorCheck(context)
+            .then((passed) => {
+                if (!passed) {
+                    return context.reply("you haven't key in the magic words")
+                }
+                context.reply("What's the group name?")
+                context.flow.wizard.next()
+            })
     },
     context => {
         name = context.message.text
-        context.reply("What's the group link?")
+        context.reply("What's the group invitation link (you have to be the creator)?")
         context.flow.wizard.next()
     },
     context => {
@@ -56,10 +62,17 @@ bot.use(Telegraf.memorySession())
 bot.on('text', flow.middleware())
 
 bot.command('list_groups', (context) => {
-    db.read('groups/').then(function (groupsMapping) {
-        const groups = Object.entries(groupsMapping).map(([name, link]) => `- [${name}](${link})`)
-        return context.reply(groups.join('\n'), Extra.markdown())
-    })
+    db.doorCheck(context)
+        .then((passed) => {
+            if (!passed) {
+                return context.reply("you haven't key in the magic words")
+            }
+
+            db.read('groups/').then(function (groupsMapping) {
+                const groups = Object.entries(groupsMapping).map(([name, link]) => `- [${name}](${link})`)
+                return context.reply(groups.join('\n'), Extra.markdown())
+            })
+        })
 })
 
 console.log('Starting the bot…')
