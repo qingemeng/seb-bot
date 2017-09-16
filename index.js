@@ -1,13 +1,9 @@
 'use strict';
 
-import Telegraf from 'telegraf';
-import TelegrafFlow from 'telegraf-flow';
+import Telegraf, { Extra } from 'telegraf';
+import TelegrafFlow, { WizardScene } from 'telegraf-flow';
+import db from './db';
 
-const db = require('./db');
-
-const {Extra} = Telegraf;
-
-const {WizardScene} = TelegrafFlow;
 const flow = new TelegrafFlow();
 
 flow.command('add_group', context => context.flow.enter('addGroup'));
